@@ -1,0 +1,237 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>RIVERHAND — 강을 빚는 손</title>
+    <script type="module" crossorigin src="./assets/index-DxQRiM0F.js"></script>
+    <link rel="stylesheet" crossorigin href="./assets/index-CfkvtwCe.css">
+  </head>
+  <body>
+    <div id="canvas-container" aria-label="강을 빚는 손 3D 지형 화면"></div>
+
+    <!-- 3D Diegetic Landmark Pins -->
+    <div id="landmark-layer" aria-hidden="true"></div>
+
+    <!-- Title Screen Overlay (rendered over live sunlit 3D miniature valley) -->
+    <section id="title-overlay" class="overlay-screen visible">
+      <div class="title-card">
+        <p class="eyebrow">HANDCRAFTED HYDRAULIC DIORAMA</p>
+        <h1>RIVERHAND</h1>
+        <p class="korean-subtitle">강을 빚는 손</p>
+        <p class="premise">
+          오래된 돌수로가 무너져 계곡의 물길이 끊겼습니다.<br />
+          손끝으로 땅을 파고 제방을 쌓아 세 곳의 수차를 함께 돌리고,<br />
+          낮은 곳의 기와집 마을이 침수되지 않게 지켜 주세요.
+        </p>
+
+        <div class="controls-preview">
+          <div class="ctrl-chip">
+            <span class="key-badge">좌클릭 드래그</span>
+            <span>수로 파기 <em>(+흙 획득)</em></span>
+          </div>
+          <div class="ctrl-chip">
+            <span class="key-badge">Shift + 드래그</span>
+            <span>둑 쌓기 <em>(-흙 소비)</em></span>
+          </div>
+          <div class="ctrl-chip">
+            <span class="key-badge">우클릭 / 휠</span>
+            <span>시점 회전 · 확대</span>
+          </div>
+          <div class="ctrl-chip">
+            <span class="key-badge">Z / R</span>
+            <span>직전 되돌리기 · 재시작</span>
+          </div>
+        </div>
+
+        <button id="btn-start" class="primary-btn" type="button">
+          물길 빚기 시작
+        </button>
+      </div>
+    </section>
+
+    <!-- Main In-Game HUD -->
+    <header id="hud-root" class="hud-hidden">
+      <div class="hud-top-bar">
+        <!-- Left: Title & Contextual Guide -->
+        <div class="hud-brand-panel glass-panel">
+          <div class="brand-row">
+            <span class="brand-en">RIVERHAND</span>
+            <span class="brand-sep">·</span>
+            <span class="brand-ko">강을 빚는 손</span>
+          </div>
+          <p id="guide-text" class="guide-text">
+            상류 돌수로 끝의 흙더미를 파서 첫 번째 수차를 돌려보세요.
+          </p>
+        </div>
+
+        <!-- Center: 3 Waterwheels & Simultaneous Stability Goal -->
+        <div class="hud-wheels-panel glass-panel">
+          <div class="wheels-row">
+            <div class="wheel-card" id="wheel-card-0">
+              <span class="wheel-icon" id="wheel-icon-0">✻</span>
+              <div class="wheel-info">
+                <span class="wheel-name">산마루 방앗간</span>
+                <div class="wheel-bar-track">
+                  <div class="wheel-bar-fill" id="wheel-bar-0"></div>
+                </div>
+              </div>
+              <span class="wheel-status" id="wheel-state-0">정지</span>
+            </div>
+
+            <div class="wheel-card" id="wheel-card-1">
+              <span class="wheel-icon" id="wheel-icon-1">✻</span>
+              <div class="wheel-info">
+                <span class="wheel-name">다랑밭 물방아</span>
+                <div class="wheel-bar-track">
+                  <div class="wheel-bar-fill" id="wheel-bar-1"></div>
+                </div>
+              </div>
+              <span class="wheel-status" id="wheel-state-1">정지</span>
+            </div>
+
+            <div class="wheel-card" id="wheel-card-2">
+              <span class="wheel-icon" id="wheel-icon-2">✻</span>
+              <div class="wheel-info">
+                <span class="wheel-name">돌다리 대장간</span>
+                <div class="wheel-bar-track">
+                  <div class="wheel-bar-fill" id="wheel-bar-2"></div>
+                </div>
+              </div>
+              <span class="wheel-status" id="wheel-state-2">정지</span>
+            </div>
+          </div>
+
+          <div class="goal-progress-row">
+            <span class="goal-label" id="goal-label">세 수차 동시 안정 가동</span>
+            <div class="goal-bar-track">
+              <div class="goal-bar-fill" id="goal-bar-fill"></div>
+            </div>
+            <span class="goal-timer" id="goal-timer">0.0 / 12.0초</span>
+          </div>
+        </div>
+
+        <!-- Right: Soil Pouch, Brush Status & Utility Actions -->
+        <div class="hud-soil-panel glass-panel">
+          <div class="soil-header">
+            <span class="soil-label">보유한 흙</span>
+            <span class="soil-value"><strong id="soil-count">20</strong> 단</span>
+          </div>
+          <div class="soil-bar-track">
+            <div class="soil-bar-fill" id="soil-bar-fill"></div>
+          </div>
+          <div class="brush-readout-row">
+            <span id="brush-mode-pill" class="mode-pill dig">파기 모드</span>
+            <span id="surface-hint" class="surface-hint">부드러운 흙</span>
+          </div>
+          <div class="action-btns-row">
+            <button id="btn-undo" class="mini-btn" type="button" title="직전 조형 되돌리기 (Z)" disabled>
+              되돌리기 <kbd>Z</kbd>
+            </button>
+            <button id="btn-restart" class="mini-btn" type="button" title="처음부터 다시 시작 (R)">
+              다시 시작 <kbd>R</kbd>
+            </button>
+            <button id="btn-mute" class="mini-btn icon-only" type="button" title="소리 켜기/끄기">
+              🔊
+            </button>
+            <button id="btn-labels" class="mini-btn icon-only" type="button" title="지명 표시 켜기/끄기">
+              🏷️
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Flood Warning Banner -->
+      <div id="flood-banner" class="flood-banner hidden" role="alert">
+        <div class="flood-text-row">
+          <span id="flood-title">⚠️ 낮은 마을 주변 수위 상승!</span>
+          <span id="flood-pct">주의</span>
+        </div>
+        <p id="flood-desc">
+          물길이 기와집 마을로 향하고 있습니다. 북쪽에 둑(Shift+드래그)을 쌓거나 배수로를 돌다리 쪽으로 유도하세요.
+        </p>
+        <div class="flood-bar-track">
+          <div id="flood-bar-fill" class="flood-bar-fill"></div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Appreciation Mode Minimal Bar (after Victory) -->
+    <div id="appreciate-bar" class="appreciate-bar hidden glass-panel">
+      <span>✨ 살아난 계곡 감상 중 — 자유롭게 확대·회전하거나 물길을 더 다듬어 보세요</span>
+      <button id="btn-appreciate-restart" class="mini-btn" type="button">
+        처음부터 다시 빚기 <kbd>R</kbd>
+      </button>
+    </div>
+
+    <!-- Bottom Compact Controls Bar -->
+    <footer id="controls-footer" class="controls-footer hud-hidden">
+      <span><strong>좌클릭 드래그</strong> 파기(+흙)</span>
+      <span class="dot">·</span>
+      <span><strong>Shift + 좌클릭</strong> 쌓기(-흙)</span>
+      <span class="dot">·</span>
+      <span><strong>우클릭 드래그</strong> 카메라 회전</span>
+      <span class="dot">·</span>
+      <span><strong>마우스 휠</strong> 확대·축소</span>
+      <span class="dot">·</span>
+      <span><strong>Z</strong> 되돌리기</span>
+      <span class="dot">·</span>
+      <span><strong>R</strong> 다시 시작</span>
+    </footer>
+
+    <!-- Victory Modal -->
+    <section id="victory-modal" class="overlay-screen">
+      <div class="result-card victory">
+        <p class="eyebrow">VALLEY RESTORED</p>
+        <h2>계곡에 생명이 돌아왔습니다</h2>
+        <p class="result-desc">
+          손으로 빚어낸 물길을 따라 세 곳의 수차가 힘차게 돌고,<br />
+          메마르던 다랑밭과 낮은 기와집 마을에 평화로운 물소리가 울려 퍼집니다.
+        </p>
+        <div class="stats-grid">
+          <div class="stat-item">
+            <span class="stat-label">완주 시간</span>
+            <strong id="stat-time">0:00</strong>
+          </div>
+          <div class="stat-item">
+            <span class="stat-label">다랑밭 생태 회복</span>
+            <strong id="stat-farm">0%</strong>
+          </div>
+          <div class="stat-item">
+            <span class="stat-label">남은 흙 재고</span>
+            <strong id="stat-soil">0 단</strong>
+          </div>
+        </div>
+        <div class="modal-actions">
+          <button id="btn-appreciate" class="primary-btn" type="button">
+            살아난 계곡 감상하기
+          </button>
+          <button id="btn-victory-restart" class="secondary-btn" type="button">
+            처음부터 다시 시작 (R)
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Defeat Modal -->
+    <section id="defeat-modal" class="overlay-screen">
+      <div class="result-card defeat">
+        <p class="eyebrow">VILLAGE FLOODED</p>
+        <h2>낮은 마을이 침수되었습니다</h2>
+        <p class="result-desc">
+          거센 물길이 기와집 기단을 넘어 마을을 덮쳤습니다.<br />
+          직전 조형을 되돌려 마을 북쪽에 제방을 쌓거나, 물길을 돌다리 협곡으로 유도해 보세요.
+        </p>
+        <div class="modal-actions">
+          <button id="btn-defeat-undo" class="primary-btn" type="button">
+            직전 조형 되돌리기 (Z)
+          </button>
+          <button id="btn-defeat-restart" class="secondary-btn" type="button">
+            처음부터 다시 시작 (R)
+          </button>
+        </div>
+      </div>
+    </section>
+
+  </body>
+</html>

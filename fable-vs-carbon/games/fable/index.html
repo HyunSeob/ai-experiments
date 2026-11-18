@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>RIVERHAND — 강을 빚는 손</title>
+  <script type="module" crossorigin src="./assets/index-Bg2MWUfU.js"></script>
+  <link rel="stylesheet" crossorigin href="./assets/index-D_40TI2u.css">
+</head>
+<body>
+  <canvas id="view"></canvas>
+  <div id="danger" aria-hidden="true"></div>
+  <div id="labels" aria-hidden="true"></div>
+
+  <div id="hud" class="hidden">
+    <section id="goals" class="panel">
+      <h2>세 방아를 함께 돌리기</h2>
+      <ul id="wheels"></ul>
+      <div class="meter" id="hold">
+        <div class="row"><span>함께 가동</span><b id="holdText">0 / 20초</b></div>
+        <div class="bar"><i id="holdBar"></i></div>
+      </div>
+      <div class="meter" id="village">
+        <div class="row"><span><i class="dot" id="villageDot"></i><span id="villageText">마을은 안전합니다</span></span><b id="floodText"></b></div>
+        <div class="bar danger"><i id="floodBar"></i></div>
+      </div>
+      <div class="row" id="fields"><span>살아난 밭</span><span class="sprouts"><i></i><i></i><i></i></span></div>
+    </section>
+
+    <div id="hint" class="panel"><span id="hintText"></span></div>
+    <div id="alert"></div>
+    <div id="toast"></div>
+
+    <section id="soil" class="panel">
+      <div class="mode" id="mode"><span class="chip dig">파기</span><span class="chip fill">쌓기</span></div>
+      <div class="amount"><span>가진 흙</span><b id="soilText">0</b></div>
+      <div class="bar soil"><i id="soilBar"></i></div>
+    </section>
+
+    <nav id="tools">
+      <button id="btnUndo" title="직전 조형 되돌리기 (Z)"><kbd>Z</kbd>되돌리기</button>
+      <button id="btnRestart" title="처음부터 다시 (R)"><kbd>R</kbd>다시 시작</button>
+      <button id="btnNames" title="지명 표시 (N)"><kbd>N</kbd>지명</button>
+      <button id="btnSound" title="소리 켜기/끄기 (M)"><kbd>M</kbd><span id="soundText">소리 켬</span></button>
+    </nav>
+
+    <aside id="legend" class="panel">
+      <dl>
+        <div><dt>왼쪽 드래그</dt><dd>땅 파기</dd></div>
+        <div><dt>Shift + 왼쪽 드래그</dt><dd>흙 쌓기</dd></div>
+        <div><dt>우클릭 드래그</dt><dd>카메라 회전</dd></div>
+        <div><dt>휠</dt><dd>확대 · 축소</dd></div>
+      </dl>
+    </aside>
+  </div>
+
+  <div id="title">
+    <div class="titleCard">
+      <p class="over">계곡 축소 모형 · 한 판 5–8분</p>
+      <h1>RIVERHAND</h1>
+      <p class="sub">강을 빚는 손</p>
+      <p class="lead">말라 가는 계곡에 물을 되돌려 주세요.<br>땅을 파고 쌓으면, 물은 스스로 낮은 곳을 찾아 흐릅니다.</p>
+      <ul class="keys">
+        <li><kbd>왼쪽 드래그</kbd>파기</li>
+        <li><kbd>Shift + 왼쪽 드래그</kbd>쌓기</li>
+        <li><kbd>우클릭 드래그</kbd>회전</li>
+        <li><kbd>휠</kbd>확대 · 축소</li>
+        <li><kbd>Z</kbd>되돌리기</li>
+        <li><kbd>R</kbd>다시 시작</li>
+      </ul>
+      <p class="goal">세 방아를 <b>20초</b> 동안 함께 돌리고, 낮은 마을이 물에 잠기지 않게 지키면 됩니다.</p>
+      <button id="start">시작하기</button>
+    </div>
+  </div>
+
+  <div id="end" class="hidden">
+    <div class="endCard">
+      <p class="over" id="endOver"></p>
+      <h2 id="endTitle"></h2>
+      <p class="lead" id="endLead"></p>
+      <dl id="endStats"></dl>
+      <div class="seals" id="endSeals"></div>
+      <div class="actions">
+        <button id="endLook">계곡 둘러보기</button>
+        <button id="endRestart" class="primary">다시 빚기 <kbd>R</kbd></button>
+      </div>
+    </div>
+  </div>
+  <div id="lookPill" class="hidden">둘러보는 중 · <kbd>R</kbd> 다시 빚기</div>
+
+  <div id="fade"></div>
+  <div id="loading">계곡을 빚는 중…</div>
+</body>
+</html>
